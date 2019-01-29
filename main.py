@@ -1,6 +1,6 @@
 import os
-from subprocess import run, PIPE, STDOUT
-from threading import Thread
+from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
+from queue import Queue, Empty
 from time import sleep
 import re
 
@@ -8,16 +8,24 @@ _rrsre = re.compile("[ \t]+")
 def rrs(text):
     return re.sub(_rrsre, " ", text)
 
-def runex(args, **kwargs):
-    cp = run(
+def runex(args, to=None, **kwargs):
+    proc = Popen(
         args,
         stdout=PIPE, stderr=STDOUT, text=True,
         env=os.environ,
         **kwargs,
     )
-    rc = cp.returncode
-    assert rc == 0, "%s returned %s: %s" % (args, rc, cp.stdout)
-    return cp.stdout
+    print("process started")
+
+    try:
+        rc = proc.wait(to)
+    except TimeoutExpired:
+        proc.kill()
+        raise
+    else:
+        text = proc.stdout.read()
+        assert rc == 0, "%s returned %s: %s" % (args, rc, text)
+        return text
 
 def find_id(desk):
     text = runex(["wmctrl", "-l"]).strip()
@@ -30,13 +38,13 @@ def move(id, d, p, s):
     mvarg = "0,%s" % ",".join([str(int(i)) for i in (*p, *s)])
     runex(["wmctrl", "-i", "-r", id, "-e", mvarg])
 
-def launch(app, to=2):
-    def run_app(app):
-        run(["gtk-launch", app], env=os.environ)
-    thread = Thread(target=run_app, args=(app,))
-    thread.daemon = True
-    thread.start()
-    sleep(to)
+def launch(app, to=1):
+    try:
+        runex(["gtk-launch", app], to=to)
+    except TimeoutExpired:
+        print("warning: timeout expired")
+    else:
+        sleep(1)
     print("'%s' app launched" % app)
 
     id = find_id(0)
@@ -76,6 +84,7 @@ def params(geom, grid, xp, yp, xs=1, ys=1):
 
 def make_develop(desk=1):
     geom = geometry(desk)
+
     grid = [[0.35, 0.35], [0.4]]
 
     App("firefox-esr").move(desk, *params(geom, grid, 0, 0, ys=-1))
