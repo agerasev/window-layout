@@ -30,18 +30,25 @@ def move(id, d, p, s):
     mvarg = "0,%s" % ",".join([str(int(i)) for i in (*p, *s)])
     runex(["wmctrl", "-i", "-r", id, "-e", mvarg])
 
-def launch(app, to=2):
+def current():
+    text = runex(["wmctrl", "-d"]).strip()
+    lines = [rrs(l).split(" ") for l in text.split("\n")]
+    return int([l[0] for l in lines if l[1] == "*"][0])
+
+def launch(app, to=1):
     def run_app(app):
         run(["gtk-launch", app], env=os.environ)
     thread = Thread(target=run_app, args=(app,))
     thread.daemon = True
+    desk = current()
     thread.start()
     sleep(to)
     print("'%s' app launched" % app)
 
-    id = find_id(0)
+    id = find_id(desk)
     print("app id is %s" % id)
     return id
+
 
 def geometry(desk):
     text = runex(["wmctrl", "-d"]).strip()
@@ -79,8 +86,7 @@ def make_develop(desk=1):
     grid = [[0.35, 0.35], [0.4]]
 
     App("firefox-esr").move(desk, *params(geom, grid, 0, 0, ys=-1))
-    #App("sublime_text")
-    App("firefox-esr").move(desk, *params(geom, grid, 1, 0, ys=-1))
+    App("sublime_text").move(desk, *params(geom, grid, 1, 0, ys=-1))
     App("nemo").move(desk, *params(geom, grid, 2, 0))
     App("org.gnome.Terminal").move(desk, *params(geom, grid, 2, 1))
 
