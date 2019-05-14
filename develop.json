@@ -16,19 +16,19 @@
             "launch": "sublime_text",
             "mode": "proportional",
             "pos": [0.35, 0],
-            "size": [0.35, 1]
+            "size": [0.4, 1]
         },
         {
             "launch": "nemo",
             "mode": "proportional",
-            "pos": [0.7, 0],
-            "size": [0.3, 0.45]
+            "pos": [0.75, 0],
+            "size": [0.25, 0.4]
         },
         {
             "launch": "org.gnome.Terminal",
             "mode": "proportional",
-            "pos": [0.7, 0.45],
-            "size": [0.3, 0.55]
+            "pos": [0.75, 0.4],
+            "size": [0.25, 0.6]
         }
     ]
 }

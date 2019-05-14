@@ -106,37 +106,6 @@ def place(cfg):
         App(app["launch"]).move(desk, pos, size)
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        config = {
-            "desktop": 2,
-            "resolution": "auto",
-            "borders": {
-                "h": [1, 1],
-                "v": [29, 1],
-            },
-            "apps": [
-                {
-                    "launch": "nemo",
-                    "mode": "proportional",
-                    "pos": [0.2, 0.2],
-                    "size": [0.2, 0.2],
-                },
-                {
-                    "launch": "nemo",
-                    "mode": "proportional",
-                    "pos": [0.4, 0.2],
-                    "size": [0.2, 0.2],
-                },
-                {
-                    "launch": "nemo",
-                    "mode": "proportional",
-                    "pos": [0.2, 0.4],
-                    "size": [0.2, 0.2],
-                },
-            ]
-        }
-    else:
-        with open(sys.argv[1], "r") as file:
-            config = json.loads(file.read())
-            
+    with open(sys.argv[1], "r") as file:
+        config = json.loads(file.read())
     place(config)
